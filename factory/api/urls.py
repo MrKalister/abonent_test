@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from .views import AbonentViewSet, LimitViewSet
+from .views import AbonentViewSet, LimitViewSet, Upload
 
 v1_router = routers.DefaultRouter()
 v1_router.register('abonents', AbonentViewSet, basename='abonent')
@@ -14,4 +14,5 @@ urlpatterns = [
     path('auth/', include('djoser.urls')),
     # JWT-эндпоинты, для управления JWT-токенами
     path('auth/', include('djoser.urls.jwt')),
+    path('upload/', Upload.as_view())
 ]

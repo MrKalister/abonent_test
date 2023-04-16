@@ -1,7 +1,6 @@
-from rest_framework.serializers import ModelSerializer
-
 from abonents.models import Abonent
 from limits.models import Limit
+from rest_framework.serializers import ModelSerializer
 
 
 class AbonentSerializer(ModelSerializer):
