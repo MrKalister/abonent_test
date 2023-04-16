@@ -32,7 +32,7 @@ class Upload(views.APIView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
-        file = next(iter(request.FILES.values()))
+        file = next(request.FILES.values())
         try:
             if not file:
                 raise UploadException('Key for file must be "file".')
@@ -48,8 +48,8 @@ class Upload(views.APIView):
                     for row in list(csv.DictReader(paramFile))]
             else:
                 sheet = openpyxl.open(file.file, read_only=True).active
-                if (sheet[1][0].value.lower() != "username" or
-                        sheet[1][1].value.lower() != "phone"):
+                if (sheet[1][0].value.lower() != 'username' or
+                        sheet[1][1].value.lower() != 'phone'):
                     raise UploadException(
                         'First column must be "username" and'
                         'second column must be "phone"')
@@ -65,7 +65,6 @@ class Upload(views.APIView):
             message = ({'message': 'Imported successfully'},
                        status.HTTP_201_CREATED)
         except Exception as e:
-            message = ({'error': str(e)},
-                       status.HTTP_400_BAD_REQUEST)
+            message = ({'error': str(e)}, status.HTTP_400_BAD_REQUEST)
         finally:
             return r.Response(*message)

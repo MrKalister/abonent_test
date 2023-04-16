@@ -162,55 +162,55 @@ DJOSER = {
 }
 
 # LOGGING
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'formatters': {
-#         'console': {
-#             'format': '%(name)-12s %(levelname)-8s %(message)s'
-#         },
-#         'file': {
-#             'format': '%(levelname)-6s %(asctime)-8s %(name)s %(message)s'
-#         }
-#     },
-#     'handlers': {
-#         'console': {
-#             'level': 'DEBUG',
-#             'class': 'logging.StreamHandler',
-#             'formatter': 'console'
-#         },
-#         'file': {
-#             'level': 'DEBUG',
-#             'class': 'logging.handlers.RotatingFileHandler',
-#             'filename': os.path.join(PROJECT_DIR, "logs", "info.log"),
-#             'formatter': 'file',
-#             'maxBytes': 1024 * 1024 * 1,  # 1 MB,
-#             'backupCount': 5,
-#             'encoding': 'utf-8',
-#         }
-#     },
-#     'loggers': {
-#         'django': {
-#             'level': 'DEBUG',
-#             'handlers': ['file'],
-#             'propagate': True,
-#         }
-#     },
-# }
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'console': {
+            'format': '%(name)-12s %(levelname)-8s %(message)s'
+        },
+        'file': {
+            'format': '%(levelname)-6s %(asctime)-8s %(name)s %(message)s'
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'console'
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, "logs", "info.log"),
+            'formatter': 'file',
+            'maxBytes': 1024 * 1024 * 1,  # 1 MB,
+            'backupCount': 5,
+            'encoding': 'utf-8',
+        }
+    },
+    'loggers': {
+        'django': {
+            'level': 'DEBUG',
+            'handlers': ['file'],
+            'propagate': True,
+        }
+    },
+}
 
-# if DEBUG:
-#     '''If DEBUG == True logging write to console, else write to file.'''
+if DEBUG:
+    '''If DEBUG == True logging write to console, else write to file.'''
 
-#     loger = "django.request"
-#     LOGGING["loggers"][loger] = LOGGING["loggers"].pop("django")
-#     LOGGING["loggers"][loger]["handlers"] = ["console"]
+    loger = "django.request"
+    LOGGING["loggers"][loger] = LOGGING["loggers"].pop("django")
+    LOGGING["loggers"][loger]["handlers"] = ["console"]
 
-# if DEBUG and os.environ.get("RUN_MAIN", None) != "true":
-#     '''
-#     python manage.py runserver starts a python process that launches your
-#     server in a child python process. Each time the parent detects a change it
-#     recreates a new child. The problem is that the log rotation by the child
-#     process fails because the parent still has a handle on that file.
-#     This solution tells the parent that there are no log file.
-#     '''
-#     LOGGING = {}
+if DEBUG and os.environ.get("RUN_MAIN", None) != "true":
+    '''
+    python manage.py runserver starts a python process that launches your
+    server in a child python process. Each time the parent detects a change it
+    recreates a new child. The problem is that the log rotation by the child
+    process fails because the parent still has a handle on that file.
+    This solution tells the parent that there are no log file.
+    '''
+    LOGGING = {}
