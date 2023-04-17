@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Limit(models.Model):
-    name = models.CharField('Название ', null=True, blank=True, max_length=150)
+    name = models.CharField('Название ', max_length=150)
     description = models.CharField(
         'Описание',
         max_length=150,

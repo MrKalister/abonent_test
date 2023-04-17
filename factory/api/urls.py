@@ -14,5 +14,6 @@ urlpatterns = [
     path('auth/', include('djoser.urls')),
     # JWT-эндпоинты, для управления JWT-токенами
     path('auth/', include('djoser.urls.jwt')),
+    # Эндпоинт для массовой загрузки
     path('upload/', Upload.as_view())
 ]

@@ -38,9 +38,7 @@ class Abonent(models.Model):
     )
     limit = models.ForeignKey(
         Limit,
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name='abonents',
         verbose_name='Ограничения',
     )
