@@ -22,8 +22,7 @@ class LimitViewSet(viewsets.ModelViewSet):
 
 
 class UploadException(Exception):
-    def __init__(self, text):
-        self.txt = text
+    pass
 
 
 class Upload(views.APIView):
@@ -39,7 +38,34 @@ class Upload(views.APIView):
             if field.name != 'id'
         ]
 
+    def append_obj(self, row, header_row=None):
+        '''Return dict with fields and values for upload in Abonent.'''
+
+        data = {}
+        for field in self.fields_of_model():
+            if field == 'limit' and header_row:
+                order_id = row[header_row.index(field)]
+                limit_obj = Limit.objects.get_or_none(order_id=order_id)
+                if not limit_obj:
+                    raise UploadException(
+                        f'In the database no order_id with {order_id} number.')
+                data[field] = limit_obj
+            elif field == 'limit' and not header_row:
+                limit_obj = Limit.objects.get_or_none(
+                    order_id=row.get(field))
+                if not limit_obj:
+                    raise UploadException('In the database no order_id with '
+                                          f'{row.get(field)} number.')
+                data[field] = limit_obj
+            elif field != 'limit' and header_row:
+                data[field] = row[header_row.index(field)]
+            elif field != 'limit' and not header_row:
+                data[field] = row.get(field)
+        return data
+
     def post(self, request):
+        '''Create objects in Abonent tables.'''
+
         model_fields = self.fields_of_model()
         try:
             file = next(request.FILES.values())
@@ -49,32 +75,22 @@ class Upload(views.APIView):
             if ext not in self.suitable_formats:
                 raise UploadException('Unknown file format.')
             if ext == 'csv':
-                paramFile = io.TextIOWrapper(file.file)
-                # objs = [
-                #     Abonent(**self.append_obj(ext, row))
-                #     for row in csv.DictReader(paramFile)
-                # ]
-                objs = [
-                    Abonent(
-                        **{
-                            field: (Limit.objects.get(order_id=row.get(field)) if field == 'limit' else row.get(field))
-                            for field in model_fields
-                        }
-                    )
-                    for row in csv.DictReader(paramFile)
-                ]
+                book = io.TextIOWrapper(file.file)
+                header_row = next(csv.reader(book))
+                book.seek(0)
+                if header_row[:len(model_fields)] != model_fields:
+                    raise UploadException(
+                        'Fields in file do not match the model fields')
+                objs = [Abonent(**self.append_obj(row))
+                        for row in csv.DictReader(book)]
             else:
-                sheet = openpyxl.open(file.file, read_only=True).active
-                header_row = [cell.value.lower() for cell in sheet[1]]
-                objs = [
-                    Abonent(
-                        **{
-                            field: (Limit.objects.get(order_id=row.get(header_row.index(field))) if field == 'limit' else row.get(header_row.index(field)))
-                            for field in model_fields
-                        }
-                    )
-                    for row in sheet.iter_rows(min_row=2, values_only=True)
-                ]
+                book = openpyxl.open(file.file, read_only=True).active
+                header_row = [cell.value.lower() for cell in book[1]]
+                if header_row[:len(model_fields)] != model_fields:
+                    raise UploadException(
+                        'Fields in file do not match the model fields')
+                objs = [Abonent(**self.append_obj(row, header_row))
+                        for row in book.iter_rows(min_row=2, values_only=True)]
             if not objs:
                 raise UploadException(
                     'An error occurred while reading the file')
