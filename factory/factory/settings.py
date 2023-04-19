@@ -1,23 +1,13 @@
 import os
-import environ
 from datetime import timedelta
+from dotenv import load_dotenv
 
-env = environ.Env(
-    DEBUG=(bool, False),
-    SECRET_KEY=(str, "the-best-pass")
-)
+load_dotenv()
 
-# Climb up the hierarchy by the number of folders specified in the value,
-# analogous to "cd ../" in the console
-FOLDER_BACK = 1
-BASE_DIR = environ.Path(__file__) - FOLDER_BACK * 2
-PROJECT_DIR = BASE_DIR - FOLDER_BACK
-
-env.read_env(os.path.join(PROJECT_DIR, ".env"))
-DEBUG = env.bool('DEBUG')
-SECRET_KEY = env.str('SECRET_KEY')
-
-ALLOWED_HOSTS = ['127.0.0.1']
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SECRET_KEY = os.getenv('SECRET_KEY', 'the-best-secret-key')
+DEBUG = os.getenv('DEBUG', False)
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend']
 
 # Application definition
 INSTALLED_APPS = [
@@ -69,20 +59,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'factory.wsgi.application'
 
-
 # Database
-# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
+# if not DEBUG:
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, "db.sqlite3"),
+        'ENGINE': os.getenv('DB_ENGINE'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT')
     }
 }
+# else:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': os.path.join(BASE_DIR, "db.sqlite3"),
+#         }
+# }
 
 # Password validation
-# https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -100,29 +97,18 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/4.1/topics/i18n/
-
 LANGUAGE_CODE = 'ru-ru'
-
 TIME_ZONE = 'Europe/Moscow'
-
 USE_I18N = True
-
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.1/howto/static-files/
-
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-STATIC_URL = "static/"
-
+STATIC_URL = "/static/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-MEDIA_URL = "media/"
+MEDIA_URL = "/media/"
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Users model
@@ -131,10 +117,8 @@ AUTH_USER_MODEL = 'profiles.User'
 # REST settings
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        # 'rest_framework.permissions.AllowAny',
         'rest_framework.permissions.IsAuthenticated',
     ],
-
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
@@ -213,3 +197,5 @@ if DEBUG and os.environ.get("RUN_MAIN", None) != "true":
     This solution tells the parent that there are no log file.
     '''
     LOGGING = {}
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://127.0.0.1']
